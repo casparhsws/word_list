@@ -1,8 +1,10 @@
-import glob, os
+import os
 from typing import List
 from itertools import compress, product, chain
 from functools import partial
 from contextlib import ExitStack
+
+# TODO: Refactor generic code
 
 
 class SCOWLWordProcessor:
@@ -49,7 +51,7 @@ class SCOWLWordProcessor:
         self.out_directory = self.make_out_directory(out_directory)
         self.output_files = list(set(chain.from_iterable(function_outs.values())))
 
-    def make_out_directory(self, directory):
+    def make_out_directory(self, directory: str) -> str:
         if not os.path.exists(directory):
             os.makedirs(directory)
         return directory
@@ -58,7 +60,7 @@ class SCOWLWordProcessor:
     def valid_arg_check(
         args: List,
         valid_set_name: str,
-    ):
+    ) -> List:
         valid_set = SCOWLWordProcessor._VALID_ARGS_.get(valid_set_name)
         missing = list(compress(args, [a not in valid_set for a in args]))
         if missing:
@@ -81,7 +83,8 @@ class SCOWLWordProcessor:
             with open(filepath, encoding="ISO-8859-1") as fp:
                 line = fp.readline()
                 while line:
-                    yield line.strip().replace("'s", "")
+                    if not line.strip().endswith("'s"):
+                        yield line.strip()
                     line = fp.readline()
 
     def files_stream_words(self):
@@ -120,7 +123,7 @@ class SCOWLWordProcessor:
                         file.write("%s\n" % word)
 
     @staticmethod
-    def words_start_with(word: str, starts_with: str):
+    def words_start_with(word: str, starts_with: str) -> bool:
         return word[: len(starts_with)] == starts_with
 
 
@@ -149,4 +152,4 @@ if __name__ == "__main__":
         sizes=sizes,
         function_outs=function_outs,
     )
-    SWP.process_word_files(mode="batch")
+    SWP.process_word_files(mode="stream")
