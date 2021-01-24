@@ -17,7 +17,7 @@ More details about the category, subcategory and size options can be found in th
 
 ### Demonstration
 
-```
+```python
 from parse_words import SCOWLWordProcessor
 
 directory = r"/d/repos/sharptx/scowl-2020.12.07/final"
