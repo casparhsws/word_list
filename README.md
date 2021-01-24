@@ -49,3 +49,17 @@ SWP = SCOWLWordProcessor(
 )
 SWP.process_word_files(mode="stream")
 ```
+
+The function_outs argument means you can generate the filter for another function. For example, to split by first letter you can define and `function_outs` generator:
+```python
+    def build_outputs_all_letters_seperate():
+        return {
+            partial(SCOWLWordProcessor.words_start_with, starts_with=letter): [
+                letter + "_words"
+            ]
+            for letter in string.ascii_lowercase
+        }
+
+    function_outs = build_outs_all_letters_seperate()
+```
+This will create a seperate file for each letter.

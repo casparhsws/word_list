@@ -3,6 +3,7 @@ from typing import List
 from itertools import compress, product, chain
 from functools import partial
 from contextlib import ExitStack
+import string
 
 # TODO: Refactor generic code
 
@@ -62,11 +63,14 @@ class SCOWLWordProcessor:
         valid_set_name: str,
     ) -> List:
         valid_set = SCOWLWordProcessor._VALID_ARGS_.get(valid_set_name)
-        missing = list(compress(args, [a not in valid_set for a in args]))
-        if missing:
-            raise ValueError(
-                f"Arguments {missing} not found in valid set '{valid_set_name}': {valid_set}"
-            )
+        if args:
+            missing = list(compress(args, [a not in valid_set for a in args]))
+            if missing:
+                raise ValueError(
+                    f"Arguments {missing} not found in valid set '{valid_set_name}': {valid_set}"
+                )
+        else:
+            args = list(valid_set)
         return args
 
     def file_combinations(self):
@@ -124,7 +128,7 @@ class SCOWLWordProcessor:
 
     @staticmethod
     def words_start_with(word: str, starts_with: str) -> bool:
-        return word[: len(starts_with)] == starts_with
+        return word.lower()[: len(starts_with)] == starts_with.lower()
 
 
 if __name__ == "__main__":
@@ -137,19 +141,25 @@ if __name__ == "__main__":
         "canadian",
         "australian",
     ]
-    subcategories = ["upper", "words"]
+    subcategories = ["words"]
     sizes = [10, 20, 35, 40, 50, 55, 60, 70, 80]
-    starts_c = partial(SCOWLWordProcessor.words_start_with, starts_with="c")
-    starts_a = partial(SCOWLWordProcessor.words_start_with, starts_with="a")
-    function_outs = {
-        starts_c: ["c_words"],
-        starts_a: ["a_words"],
-    }
+
+    def build_outputs_all_letters_seperate():
+        return {
+            partial(SCOWLWordProcessor.words_start_with, starts_with=letter): [
+                letter + "_words"
+            ]
+            for letter in string.ascii_lowercase
+        }
+
+    function_outs = build_outputs_all_letters_seperate()
+
     SWP = SCOWLWordProcessor(
         directory=directory,
-        categories=categories,
+        categories=[],
         subcategories=subcategories,
         sizes=sizes,
         function_outs=function_outs,
+        out_directory="./all_letters_seperate",
     )
-    SWP.process_word_files(mode="stream")
+    SWP.process_word_files(mode="batch")
