@@ -1,6 +1,6 @@
 # Code for Parsing SCOWL word list
  
-Details of the list can be [found here](https://github.com/en-wl/wordlist). To parse the word list, you must download the appropriate files for your operating system from this link.
+Details of the list can be [found here](https://github.com/en-wl/wordlist). To parse the word list, you must download the appropriate files for your operating system from [this link](http://wordlist.aspell.net/).
 
 ### Usage
 The whole module is accessed through the `SCOWLWordProcessor` class.
