@@ -1,6 +1,6 @@
 import glob, os
 from typing import List
-from itertools import compress, product
+from itertools import compress, product, chain
 
 _DIRECTORY_ = r"/d/repos/sharptx/scowl-2020.12.07/final"
 
@@ -48,16 +48,31 @@ def file_combinations(categories, subcategories, sizes):
     sizes = [str(c) for c in sizes]
     yield from map(lambda x: "".join(x), product(*[categories, subcategories, sizes]))
 
-def parse_word_file():
-    
+
+def file_word_stream(file, directory=_DIRECTORY_):
+    filepath = os.path.join(directory, file)
+    with open(filepath, encoding="ISO-8859-1") as fp:
+        line = fp.readline()
+        while line:
+            yield line.strip().replace("'s", "")
+            line = fp.readline()
+
+
+def file_stream_words(categories, subcategories, sizes):
+    return chain.from_iterable(
+        (
+            file_word_stream(file)
+            for file in file_combinations(categories, subcategories, sizes)
+        )
+    )
 
 
 def read_word_files(categories: List[str], subcategories: List[str], sizes: List[int]):
     valid_arg_check(categories, "categories")
     valid_arg_check(subcategories, "subcategories")
     valid_arg_check(sizes, "sizes")
-    for file in file_combinations(categories, subcategories, sizes):
-        filepath = os.path.join(_DIRECTORY_, file)
+    for word in file_stream_words(categories, subcategories, sizes):
+        print(word)
 
 
 if __name__ == "__main__":
